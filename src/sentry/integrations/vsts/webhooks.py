@@ -44,7 +44,8 @@ class WorkItemWebhook(Endpoint):
         except KeyError as e:
             logger.info("vsts.invalid-webhook-payload", extra={"error": six.text_type(e)})
 
-        if event_type == "workitem.updated":
+        # https://docs.microsoft.com/en-us/azure/devops/service-hooks/events?view=azure-devops#workitem.updated
+        if event_type == 'workitem.updated':
             try:
                 integration = Integration.objects.get(
                     provider=PROVIDER_KEY, external_id=external_id
