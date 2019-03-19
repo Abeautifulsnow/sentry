@@ -76,16 +76,25 @@ class Webhook(object):
 
     def update_repo_data(self, repo, event):
         """
-        Given a webhook payload, update stored repo data.
+        Given a webhook payload, update stored repo data if needed.
 
         Assumes a 'repository' key in event payload, with certain subkeys.
         Rework this if that stops being a safe assumption.
         """
 
-        repo.config['name'] = event['repository']['full_name']
-        repo.name = event['repository']['full_name']
-        repo.url = event['repository']['html_url']
-        repo.save()
+        # for various pieces of data on the repo, the corresponding data
+        # that came back with the webhook event
+        corresponding_data = [
+            (repo.config['name'], event['repository']['full_name']),
+            (repo.name, event['repository']['full_name']),
+            (repo.url, event['repository']['html_url']),
+        ]
+
+        if any(db_data != event_data for db_data, event_data in corresponding_data):
+            repo.config['name'] = event['repository']['full_name']
+            repo.name = event['repository']['full_name']
+            repo.url = event['repository']['html_url']
+            repo.save()
 
 
 class InstallationEventWebhook(Webhook):

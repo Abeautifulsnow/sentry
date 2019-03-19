@@ -40,22 +40,30 @@ class Webhook(object):
 
     def update_repo_data(self, repo, event):
         """
-        Given a webhook payload, update stored repo data.
+        Given a webhook payload, update stored repo data if needed.
 
         NB: Assumes event['repository']['full_name'] is defined. Rework this if
         that stops being a safe assumption.
         """
 
-        current_name = event['repository']['full_name']
-        repo.config['name'] = current_name
-        repo.name = current_name
-        # build the URL manually since it doesn't come back from the API (at
-        # least from the one webhook we currently collect)
-        # https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-entity_repository
-        # (click on 'Repository property' underneath the table for example
-        # data; neither 'links' nor 'website' give us what we need)
-        repo.url = u'https://bitbucket.org/{}'.format(current_name)
-        repo.save()
+        name_from_event = event['repository']['full_name']
+        # build the URL manually since it doesn't come back from the API in
+        # the form that we need
+        url_from_event = u'https://bitbucket.org/{}'.format(name_from_event)
+
+        # for various pieces of data on the repo, the corresponding data
+        # that came back with the webhook event
+        corresponding_data = [
+            (repo.config['name'], name_from_event),
+            (repo.name, name_from_event),
+            (repo.url, url_from_event)
+        ]
+
+        if any(db_data != event_data for db_data, event_data in corresponding_data):
+            repo.config['name'] = name_from_event
+            repo.name = name_from_event
+            repo.url = url_from_event
+            repo.save()
 
 
 def parse_raw_user_email(raw):

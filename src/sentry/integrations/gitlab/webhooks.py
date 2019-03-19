@@ -51,17 +51,27 @@ class Webhook(object):
 
     def update_repo_data(self, repo, event):
         """
-        Given a webhook payload, update stored repo data.
+        Given a webhook payload, update stored repo data if needed.
 
         Assumes a 'project' key in event payload, with certain subkeys. Rework
         this if that stops being a safe assumption.
         """
 
         project = event['project']
-        repo.name = '{} / {}'.format(project['namespace'], project['name'])
-        repo.url = project['web_url']
-        repo.config['path'] = project['path_with_namespace']
-        repo.save()
+
+        # for various pieces of data on the repo, the corresponding data
+        # that came back with the webhook event
+        corresponding_data = [
+            (repo.name, '{} / {}'.format(project['namespace'], project['name'])),
+            (repo.config['path'], project['path_with_namespace']),
+            (repo.url, project['web_url']),
+        ]
+
+        if any(db_data != event_data for db_data, event_data in corresponding_data):
+            repo.name = '{} / {}'.format(project['namespace'], project['name'])
+            repo.config['path'] = project['path_with_namespace']
+            repo.url = project['web_url']
+            repo.save()
 
 
 class MergeEventWebhook(Webhook):
