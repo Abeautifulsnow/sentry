@@ -85,7 +85,7 @@ class Webhook(object):
         # for various pieces of data on the repo, the corresponding data
         # that came back with the webhook event
         corresponding_data = [
-            (repo.config['name'], event['repository']['full_name']),
+            (repo.config.get('name'), event['repository']['full_name']),
             (repo.name, event['repository']['full_name']),
             (repo.url, event['repository']['html_url']),
         ]
