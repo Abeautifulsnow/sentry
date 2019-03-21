@@ -67,6 +67,138 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 401
 
+    def test_update_repo_data_name(self):
+        project = self.project  # force creation
+        url = '/extensions/github/webhook/'
+        secret = 'b3002c3e321d4b7880360d397db2ccfd'
+        options.set('github-app.webhook-secret', secret)
+
+        future_expires = datetime.now().replace(microsecond=0) + timedelta(minutes=5)
+        integration = Integration.objects.create(
+            provider='github',
+            external_id='12345',
+            name='octocat',
+            metadata={'access_token': '1234', 'expires_at': future_expires.isoformat()}
+        )
+        integration.add_organization(project.organization, self.user)
+
+        repo_wrong_name = Repository.objects.create(
+            organization_id=project.organization.id,
+            external_id='35129377',
+            provider='integrations:github',
+            name='emmathehacker/public-repo',
+            url='https://github.com/baxterthehacker/public-repo',
+            config={'name': 'baxterthehacker/public-repo'},
+        )
+
+        response = self.client.post(
+            path=url,
+            data=PULL_REQUEST_OPENED_EVENT_EXAMPLE,
+            content_type='application/json',
+            HTTP_X_GITHUB_EVENT='pull_request',
+            HTTP_X_HUB_SIGNATURE='sha1=bc7ce12fc1058a35bf99355e6fc0e6da72c35de3',
+            HTTP_X_GITHUB_DELIVERY=six.text_type(uuid4())
+        )
+
+        assert response.status_code == 204
+
+        # TODO: once we update to django 1.8, use the following instead of
+        # the hack below
+        # repo_wrong_name.refresh_from_db()
+        # in the meantime...
+
+        # hack to get updated data from db (see TODO above)
+        repo_wrong_name = Repository.objects.get(id=repo_wrong_name.id)
+        assert repo_wrong_name.name == 'baxterthehacker/public-repo'
+
+    def test_update_repo_data_config_name(self):
+        project = self.project  # force creation
+        url = '/extensions/github/webhook/'
+        secret = 'b3002c3e321d4b7880360d397db2ccfd'
+        options.set('github-app.webhook-secret', secret)
+
+        future_expires = datetime.now().replace(microsecond=0) + timedelta(minutes=5)
+        integration = Integration.objects.create(
+            provider='github',
+            external_id='12345',
+            name='octocat',
+            metadata={'access_token': '1234', 'expires_at': future_expires.isoformat()}
+        )
+        integration.add_organization(project.organization, self.user)
+
+        repo_wrong_config_name = Repository.objects.create(
+            organization_id=project.organization.id,
+            external_id='35129377',
+            provider='integrations:github',
+            name='baxterthehacker/public-repo',
+            url='https://github.com/baxterthehacker/public-repo',
+            config={'name': 'emmathehacker/public-repo'},
+        )
+
+        response = self.client.post(
+            path=url,
+            data=PULL_REQUEST_OPENED_EVENT_EXAMPLE,
+            content_type='application/json',
+            HTTP_X_GITHUB_EVENT='pull_request',
+            HTTP_X_HUB_SIGNATURE='sha1=bc7ce12fc1058a35bf99355e6fc0e6da72c35de3',
+            HTTP_X_GITHUB_DELIVERY=six.text_type(uuid4())
+        )
+
+        assert response.status_code == 204
+
+        # TODO: once we update to django 1.8, use the following instead of
+        # the hack below
+        # repo_wrong_config_name.refresh_from_db()
+        # in the meantime...
+
+        # hack to get updated data from db (see TODO above)
+        repo_wrong_config_name = Repository.objects.get(id=repo_wrong_config_name.id)
+        assert repo_wrong_config_name.config['name'] == 'baxterthehacker/public-repo'
+
+    def test_update_repo_data_url(self):
+        project = self.project  # force creation
+        url = '/extensions/github/webhook/'
+        secret = 'b3002c3e321d4b7880360d397db2ccfd'
+        options.set('github-app.webhook-secret', secret)
+
+        future_expires = datetime.now().replace(microsecond=0) + timedelta(minutes=5)
+        integration = Integration.objects.create(
+            provider='github',
+            external_id='12345',
+            name='octocat',
+            metadata={'access_token': '1234', 'expires_at': future_expires.isoformat()}
+        )
+        integration.add_organization(project.organization, self.user)
+
+        repo_wrong_url = Repository.objects.create(
+            organization_id=project.organization.id,
+            external_id='35129377',
+            provider='integrations:github',
+            name='baxterthehacker/public-repo',
+            url='https://github.com/emmathehacker/public-repo',
+            config={'name': 'baxterthehacker/public-repo'},
+        )
+
+        response = self.client.post(
+            path=url,
+            data=PULL_REQUEST_OPENED_EVENT_EXAMPLE,
+            content_type='application/json',
+            HTTP_X_GITHUB_EVENT='pull_request',
+            HTTP_X_HUB_SIGNATURE='sha1=bc7ce12fc1058a35bf99355e6fc0e6da72c35de3',
+            HTTP_X_GITHUB_DELIVERY=six.text_type(uuid4())
+        )
+
+        assert response.status_code == 204
+
+        # TODO: once we update to django 1.8, use the following instead of
+        # the hack below
+        # repo_wrong_url.refresh_from_db()
+        # in the meantime...
+
+        # hack to get updated data from db (see TODO above)
+        repo_wrong_url = Repository.objects.get(id=repo_wrong_url.id)
+        assert repo_wrong_url.url == 'https://github.com/baxterthehacker/public-repo'
+
 
 class PushEventWebhookTest(APITestCase):
     @patch("sentry.integrations.github.client.get_jwt")
