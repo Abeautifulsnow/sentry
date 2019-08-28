@@ -46,21 +46,21 @@ class Webhook(object):
         that stops being a safe assumption.
         """
 
-        name_from_event = event['repository']['full_name']
+        name_from_event = event["repository"]["full_name"]
         # build the URL manually since it doesn't come back from the API in
         # the form that we need
-        url_from_event = u'https://bitbucket.org/{}'.format(name_from_event)
+        url_from_event = u"https://bitbucket.org/{}".format(name_from_event)
 
         # for various pieces of data on the repo, the corresponding data
         # that came back with the webhook event
         corresponding_data = [
-            (repo.config['name'], name_from_event),
+            (repo.config["name"], name_from_event),
             (repo.name, name_from_event),
-            (repo.url, url_from_event)
+            (repo.url, url_from_event),
         ]
 
         if any(db_data != event_data for db_data, event_data in corresponding_data):
-            repo.config['name'] = name_from_event
+            repo.config["name"] = name_from_event
             repo.name = name_from_event
             repo.url = url_from_event
             repo.save()

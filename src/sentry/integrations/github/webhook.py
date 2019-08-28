@@ -85,15 +85,15 @@ class Webhook(object):
         # for various pieces of data on the repo, the corresponding data
         # that came back with the webhook event
         corresponding_data = [
-            (repo.config.get('name'), event['repository']['full_name']),
-            (repo.name, event['repository']['full_name']),
-            (repo.url, event['repository']['html_url']),
+            (repo.config.get("name"), event["repository"]["full_name"]),
+            (repo.name, event["repository"]["full_name"]),
+            (repo.url, event["repository"]["html_url"]),
         ]
 
         if any(db_data != event_data for db_data, event_data in corresponding_data):
-            repo.config['name'] = event['repository']['full_name']
-            repo.name = event['repository']['full_name']
-            repo.url = event['repository']['html_url']
+            repo.config["name"] = event["repository"]["full_name"]
+            repo.name = event["repository"]["full_name"]
+            repo.url = event["repository"]["html_url"]
             repo.save()
 
 
@@ -306,11 +306,11 @@ class PullRequestEventWebhook(Webhook):
         # while we're here, make sure repo data is up to date
         self.update_repo_data(repo, event)
 
-        pull_request = event['pull_request']
-        number = pull_request['number']
-        title = pull_request['title']
-        body = pull_request['body']
-        user = pull_request['user']
+        pull_request = event["pull_request"]
+        number = pull_request["number"]
+        title = pull_request["title"]
+        body = pull_request["body"]
+        user = pull_request["user"]
 
         # The value of the merge_commit_sha attribute changes depending on the state of the pull request. Before a pull request is merged, the merge_commit_sha attribute holds the SHA of the test merge commit. After a pull request is merged, the attribute changes depending on how the pull request was merged:
         # - If the pull request was merged as a merge commit, the attribute represents the SHA of the merge commit.

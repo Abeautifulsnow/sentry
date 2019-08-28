@@ -57,20 +57,20 @@ class Webhook(object):
         this if that stops being a safe assumption.
         """
 
-        project = event['project']
+        project = event["project"]
 
         # for various pieces of data on the repo, the corresponding data
         # that came back with the webhook event
         corresponding_data = [
-            (repo.name, '{} / {}'.format(project['namespace'], project['name'])),
-            (repo.config['path'], project['path_with_namespace']),
-            (repo.url, project['web_url']),
+            (repo.name, "{} / {}".format(project["namespace"], project["name"])),
+            (repo.config["path"], project["path_with_namespace"]),
+            (repo.url, project["web_url"]),
         ]
 
         if any(db_data != event_data for db_data, event_data in corresponding_data):
-            repo.name = '{} / {}'.format(project['namespace'], project['name'])
-            repo.config['path'] = project['path_with_namespace']
-            repo.url = project['web_url']
+            repo.name = "{} / {}".format(project["namespace"], project["name"])
+            repo.config["path"] = project["path_with_namespace"]
+            repo.url = project["web_url"]
             repo.save()
 
 
