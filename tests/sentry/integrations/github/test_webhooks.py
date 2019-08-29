@@ -102,13 +102,7 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 204
 
-        # TODO: once we update to django 1.8, use the following instead of
-        # the hack below
-        # repo_wrong_name.refresh_from_db()
-        # in the meantime...
-
-        # hack to get updated data from db (see TODO above)
-        repo_wrong_name = Repository.objects.get(id=repo_wrong_name.id)
+        repo_wrong_name.refresh_from_db()
         assert repo_wrong_name.name == "baxterthehacker/public-repo"
 
     def test_update_repo_data_config_name(self):
@@ -146,13 +140,7 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 204
 
-        # TODO: once we update to django 1.8, use the following instead of
-        # the hack below
-        # repo_wrong_config_name.refresh_from_db()
-        # in the meantime...
-
-        # hack to get updated data from db (see TODO above)
-        repo_wrong_config_name = Repository.objects.get(id=repo_wrong_config_name.id)
+        repo_wrong_config_name.refresh_from_db()
         assert repo_wrong_config_name.config["name"] == "baxterthehacker/public-repo"
 
     def test_update_repo_data_url(self):
@@ -190,13 +178,7 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 204
 
-        # TODO: once we update to django 1.8, use the following instead of
-        # the hack below
-        # repo_wrong_url.refresh_from_db()
-        # in the meantime...
-
-        # hack to get updated data from db (see TODO above)
-        repo_wrong_url = Repository.objects.get(id=repo_wrong_url.id)
+        repo_wrong_url.refresh_from_db()
         assert repo_wrong_url.url == "https://github.com/baxterthehacker/public-repo"
 
 
