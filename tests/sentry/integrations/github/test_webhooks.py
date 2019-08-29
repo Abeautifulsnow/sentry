@@ -67,7 +67,7 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 401
 
-    def test_update_repo_data_name(self):
+    def test_update_repo_name(self):
         project = self.project  # force creation
         url = "/extensions/github/webhook/"
         secret = "b3002c3e321d4b7880360d397db2ccfd"
@@ -82,11 +82,11 @@ class WebhookTest(APITestCase):
         )
         integration.add_organization(project.organization, self.user)
 
-        repo_wrong_name = Repository.objects.create(
+        repo_out_of_date_name = Repository.objects.create(
             organization_id=project.organization.id,
             external_id="35129377",
             provider="integrations:github",
-            name="emmathehacker/public-repo",
+            name="emmathehacker/public-repo",  # out of date
             url="https://github.com/baxterthehacker/public-repo",
             config={"name": "baxterthehacker/public-repo"},
         )
@@ -102,10 +102,11 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 204
 
-        repo_wrong_name.refresh_from_db()
-        assert repo_wrong_name.name == "baxterthehacker/public-repo"
+        # name has been updated
+        repo_out_of_date_name.refresh_from_db()
+        assert repo_out_of_date_name.name == "baxterthehacker/public-repo"
 
-    def test_update_repo_data_config_name(self):
+    def test_update_repo_config_name(self):
         project = self.project  # force creation
         url = "/extensions/github/webhook/"
         secret = "b3002c3e321d4b7880360d397db2ccfd"
@@ -120,13 +121,13 @@ class WebhookTest(APITestCase):
         )
         integration.add_organization(project.organization, self.user)
 
-        repo_wrong_config_name = Repository.objects.create(
+        repo_out_of_date_config_name = Repository.objects.create(
             organization_id=project.organization.id,
             external_id="35129377",
             provider="integrations:github",
             name="baxterthehacker/public-repo",
             url="https://github.com/baxterthehacker/public-repo",
-            config={"name": "emmathehacker/public-repo"},
+            config={"name": "emmathehacker/public-repo"},  # out of date
         )
 
         response = self.client.post(
@@ -140,10 +141,11 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 204
 
-        repo_wrong_config_name.refresh_from_db()
-        assert repo_wrong_config_name.config["name"] == "baxterthehacker/public-repo"
+        # config name has been updated
+        repo_out_of_date_config_name.refresh_from_db()
+        assert repo_out_of_date_config_name.config["name"] == "baxterthehacker/public-repo"
 
-    def test_update_repo_data_url(self):
+    def test_update_repo_url(self):
         project = self.project  # force creation
         url = "/extensions/github/webhook/"
         secret = "b3002c3e321d4b7880360d397db2ccfd"
@@ -158,12 +160,12 @@ class WebhookTest(APITestCase):
         )
         integration.add_organization(project.organization, self.user)
 
-        repo_wrong_url = Repository.objects.create(
+        repo_out_of_date_url = Repository.objects.create(
             organization_id=project.organization.id,
             external_id="35129377",
             provider="integrations:github",
             name="baxterthehacker/public-repo",
-            url="https://github.com/emmathehacker/public-repo",
+            url="https://github.com/emmathehacker/public-repo",  # out of date
             config={"name": "baxterthehacker/public-repo"},
         )
 
@@ -178,8 +180,9 @@ class WebhookTest(APITestCase):
 
         assert response.status_code == 204
 
-        repo_wrong_url.refresh_from_db()
-        assert repo_wrong_url.url == "https://github.com/baxterthehacker/public-repo"
+        # url has been updated
+        repo_out_of_date_url.refresh_from_db()
+        assert repo_out_of_date_url.url == "https://github.com/baxterthehacker/public-repo"
 
 
 class PushEventWebhookTest(APITestCase):
