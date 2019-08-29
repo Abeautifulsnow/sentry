@@ -62,6 +62,9 @@ class Webhook(object):
         name_from_event = event["repository"]["full_name"]
         # build the URL manually since it doesn't come back from the API in
         # the form that we need
+        # see https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-entity_repository
+        # and click on 'Repository property' underneath the table for example data
+        # (all entries are from the `api` subdomain, rather than bitbucket.org)
         url_from_event = u"https://bitbucket.org/{}".format(name_from_event)
 
         if (
