@@ -82,19 +82,19 @@ class Webhook(object):
         Rework this if that stops being a safe assumption.
         """
 
-        # for various pieces of data on the repo, the corresponding data
-        # that came back with the webhook event
-        corresponding_data = [
-            (repo.config.get("name"), event["repository"]["full_name"]),
-            (repo.name, event["repository"]["full_name"]),
-            (repo.url, event["repository"]["html_url"]),
-        ]
+        name_from_event = event["repository"]["full_name"]
+        url_from_event = event["repository"]["html_url"]
 
-        if any(db_data != event_data for db_data, event_data in corresponding_data):
-            repo.config["name"] = event["repository"]["full_name"]
-            repo.name = event["repository"]["full_name"]
-            repo.url = event["repository"]["html_url"]
-            repo.save()
+        if (
+            repo.name != name_from_event
+            or repo.config.get("name") != name_from_event
+            or repo.url != url_from_event
+        ):
+            repo.update(
+                name=name_from_event,
+                url=url_from_event,
+                config=dict(repo.config, name=name_from_event),
+            )
 
 
 class InstallationEventWebhook(Webhook):
