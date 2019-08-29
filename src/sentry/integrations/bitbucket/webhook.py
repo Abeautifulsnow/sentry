@@ -34,6 +34,19 @@ BITBUCKET_IPS = [u"34.198.203.127", u"34.198.178.64", u"34.198.32.85"]
 PROVIDER_NAME = "integrations:bitbucket"
 
 
+def parse_raw_user_email(raw):
+    # captures content between angle brackets
+    match = re.search("(?<=<).*(?=>$)", raw)
+    if match is None:
+        return
+    return match.group(0)
+
+
+def parse_raw_user_name(raw):
+    # captures content before angle bracket
+    return raw.split("<")[0].strip()
+
+
 class Webhook(object):
     def __call__(self, organization, event):
         raise NotImplementedError
@@ -61,19 +74,6 @@ class Webhook(object):
                 url=url_from_event,
                 config=dict(repo.config, name=name_from_event),
             )
-
-
-def parse_raw_user_email(raw):
-    # captures content between angle brackets
-    match = re.search("(?<=<).*(?=>$)", raw)
-    if match is None:
-        return
-    return match.group(0)
-
-
-def parse_raw_user_name(raw):
-    # captures content before angle bracket
-    return raw.split("<")[0].strip()
 
 
 class PushEventWebhook(Webhook):
