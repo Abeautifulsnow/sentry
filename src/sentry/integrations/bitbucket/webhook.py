@@ -51,19 +51,16 @@ class Webhook(object):
         # the form that we need
         url_from_event = u"https://bitbucket.org/{}".format(name_from_event)
 
-        # for various pieces of data on the repo, the corresponding data
-        # that came back with the webhook event
-        corresponding_data = [
-            (repo.config["name"], name_from_event),
-            (repo.name, name_from_event),
-            (repo.url, url_from_event),
-        ]
-
-        if any(db_data != event_data for db_data, event_data in corresponding_data):
-            repo.config["name"] = name_from_event
-            repo.name = name_from_event
-            repo.url = url_from_event
-            repo.save()
+        if (
+            repo.name != name_from_event
+            or repo.config.get("name") != name_from_event
+            or repo.url != url_from_event
+        ):
+            repo.update(
+                name=name_from_event,
+                url=url_from_event,
+                config=dict(repo.config, name=name_from_event),
+            )
 
 
 def parse_raw_user_email(raw):
