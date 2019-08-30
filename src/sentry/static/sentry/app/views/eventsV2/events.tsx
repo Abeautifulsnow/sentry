@@ -3,6 +3,7 @@ import styled from 'react-emotion';
 import * as ReactRouter from 'react-router';
 import {Location} from 'history';
 
+import Feature from 'app/components/acl/feature';
 import {Organization} from 'app/types';
 import space from 'app/styles/space';
 import SearchBar from 'app/views/events/searchBar';
@@ -60,11 +61,16 @@ export default class Events extends React.Component<EventsProps> {
             fixed: 'events chart',
           })}
         </Panel>
-        <StyledSearchBar
+        <Feature
           organization={organization}
-          query={query}
-          onSearch={this.handleSearch}
-        />
+          features={['events-v2', 'discover-v2-query-builder']}
+        >
+          <StyledSearchBar
+            organization={organization}
+            query={query}
+            onSearch={this.handleSearch}
+          />
+        </Feature>
         <Container>
           <Table organization={organization} location={location} />
           <Tags eventView={eventView} organization={organization} location={location} />
